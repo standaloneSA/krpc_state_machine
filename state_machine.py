@@ -1,3 +1,4 @@
+from ConfigParser import ConfigParser
 
 class state_machine:
   """ 
@@ -7,24 +8,34 @@ class state_machine:
   generates the transition functions.
 
   """
+  state = None
+  initial_state = None
   
   transition_map = {}
   abort_map = {}
-  state = None
-  initial_state = None
+  commands_map = {}
     
-  def __init__(self, state_cfgfile):
+  def __init__(self):
     """ Read the config and set the initial transition map """
-    from ConfigParser import ConfigParser
-    cf = ConfigParser()
-    cf.readfp(open(state_cfgfile))
-    states = cf.sections()
+    state_cfgfile = "configs/states_transitions"
+    state_commands_cfgfile = "configs/states_command"
+
+    state_config = ConfigParser()
+    state_config.readfp(open(state_cfgfile))
+
+    state_commands_config = ConfigParser()
+    state_commands_config.readfp(open(state_commands_cfgfile))
+
+    states = state_config.sections()
     for state in states:
-      transitions = cf.get(state, 'transitions').split(",")
-      self.abort_map[state] = cf.get(state, 'abort')
+      transitions = state_config.get(state, 'transitions').split(",")
+
+      self.abort_map[state] = state_config.get(state, 'abort')
       self.transition_map[state] = transitions
+
+      self.commands_map[state] = state_commands_config.items(state)
       try:
-        is_initial_state = cf.get(state, 'initial_state')
+        is_initial_state = state_config.get(state, 'initial_state')
         if is_initial_state:
           self.initial_state = state
       except Exception:

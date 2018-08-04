@@ -1,0 +1,67 @@
+[pre_hold]
+# seconds till launch
+launch_time = 11
+time_in_state = 8
+enable_sas = True
+enable_rcs = False
+
+[startup]
+time_in_state = 1
+throttle = 0
+
+[engine_verify]
+time_in_state = 2
+stage = True
+throttle = 20
+
+[go_launch]
+stage = True
+throttle = 100
+target_pitch = 90
+target_heading = 90
+target_altitude = 40
+
+[ascent_1]
+throttle = 75
+target_pitch = 45
+target_heading = 45
+target_altitude = 70
+
+[coast]
+enable_rcs = True
+throttle = 0
+target_pitch = 0
+target_heading = 0
+
+[ascent_2]
+enable_rcs = False
+throttle = 100
+target_pitch = 0
+target_heading = 0
+
+[outta_gas]
+throttle = 0
+
+[shutdown_abort]
+enable_rcs = False
+throttle = 0
+# blow up
+
+[ballistic]
+throttle = 0
+
+[abort]
+throttle = 0
+enable_sas = False
+enable_rcs = False
+
+[post_abort]
+throttle = 0
+enable_sas = False
+enable_rcs = False
+
+[safe]
+throttle = 0
+enable_sas = False
+enable_rcs = False
+
