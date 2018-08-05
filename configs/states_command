@@ -25,13 +25,15 @@ enable_sas = True
 command_throttle = 100
 command_pitch = 90
 command_heading = 90
-set_target_altitude = 1
-following_state = ascent_1
+set_target_altitude = 0.1
+following_state = begin_turn
 command_stage = True
 
 [begin_turn]
+command_throttle = 75
 command_pitch = 89
-set_target_altitude = 2
+set_target_altitude = 1
+following_state = ascent_1
 
 [ascent_1]
 command_throttle = 75
@@ -51,7 +53,7 @@ command_throttle = 85
 command_pitch = 30
 enable_rcs = True
 command_throttle = 100
-set_target_speed = 2000
+set_target_altitude = 60
 following_state = coast
 
 [coast]

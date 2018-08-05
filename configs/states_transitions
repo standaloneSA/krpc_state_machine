@@ -16,8 +16,12 @@ transitions = launch,shutdown_abort
 abort = shutdown_abort
 
 [launch]
-transitions = ascent_1,shutdown_abort,transsonic
+transitions = begin_turn,ascent_1,shutdown_abort,transsonic
 abort = shutdown_abort
+
+[begin_turn]
+transitions = abort,outta_gas,ascent_1,transsonic
+abort = abort
 
 [ascent_1]
 transitions = abort,outta_gas,coast,transsonic
