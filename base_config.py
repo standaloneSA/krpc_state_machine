@@ -9,7 +9,7 @@ version = 0.1
 cfg_file = "kvsw.config"
 connect_name = "kVSW"
 
-def begin():
+def begin(client=connect_name):
   """ Returns the krpc connection object """
   cf = ConfigParser()
   try:
@@ -27,7 +27,7 @@ def begin():
     sys.exit(1)
 
   conn = krpc.connect(
-    connect_name + " " + str(version),
+    client + " " + str(version),
     address = server,
     rpc_port=port,
     stream_port=stream_port)

@@ -13,7 +13,14 @@ def handle_ctrlc(sig, frame):
 signal.signal(signal.SIGINT, handle_ctrlc)
 
 conn = base_config.begin()
+
 sm = state_machine(conn, conn.space_center.active_vessel)
+
+# Add the callback to trigger abort from in-game
+abort = conn.add_stream(getattr, sm.vehicle.control, 'abort')
+abort.add_callback(sm.abort)
+abort.start()
+
 sm.trans('pre_hold')
 
 while sm.state != "abort":

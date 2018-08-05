@@ -1,4 +1,10 @@
+asciimatics==1.9.0
+configparser==3.5.0
 enum34==1.1.6
+future==0.16.0
 krpc==0.4.7
+Pillow==5.2.0
 protobuf==3.6.0
+pyfiglet==0.7.5
 six==1.11.0
+wcwidth==0.1.7

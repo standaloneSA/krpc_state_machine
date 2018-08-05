@@ -94,12 +94,13 @@ class state_machine:
         timer.start()
     else:
       print("Unable to transition to " + new_state + ". Aborting.")
-      self.abort() 
+      self.abort("foo") 
 
-  def abort(self):
+  def abort(self,x=True):
     """ Something has gone off the rails. Figure out our abort mode and
     to to it """
-    self.abort_counter += 1
-    if self.abort_counter > 5:
-      sys.exit(1)
-    self.trans(self.abort_map[self.state]) 
+    if x:
+      self.abort_counter += 1
+      if self.abort_counter > 5:
+        sys.exit(1)
+      self.trans(self.abort_map[self.state]) 
