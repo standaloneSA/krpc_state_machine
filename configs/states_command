@@ -1,67 +1,95 @@
+[init]
+
 [pre_hold]
 # seconds till launch
 launch_time = 11
 time_in_state = 8
+following_state = startup
 enable_sas = True
 enable_rcs = False
 
 [startup]
 time_in_state = 1
-throttle = 0
+following_state = ignition
+command_throttle = 0
 
-[engine_verify]
+[ignition]
+enable_sas = True
 time_in_state = 2
-stage = True
-throttle = 20
+following_state = launch
+command_stage = True
+command_throttle = 20
 
-[go_launch]
-stage = True
-throttle = 100
-target_pitch = 90
-target_heading = 90
-target_altitude = 40
+[launch]
+enable_sas = True
+command_throttle = 100
+command_pitch = 90
+command_heading = 90
+set_target_altitude = 1
+following_state = ascent_1
+command_stage = True
+
+[begin_turn]
+command_pitch = 89
+set_target_altitude = 2
 
 [ascent_1]
-throttle = 75
-target_pitch = 45
-target_heading = 45
-target_altitude = 70
+command_throttle = 75
+command_pitch = 85
+command_heading = 90
+set_target_speed = mach1
+following_state = transsonic
+set_target_altitude = 
+
+[transsonic]
+command_throttle = 60
+set_target_altitude = 12
+following_state = ascent_2
+
+[ascent_2]
+command_throttle = 85
+command_pitch = 30
+enable_rcs = True
+command_throttle = 100
+set_target_speed = 2000
+following_state = coast
 
 [coast]
 enable_rcs = True
-throttle = 0
-target_pitch = 0
-target_heading = 0
+command_throttle = 0
+command_pitch = 0
+command_heading = 0
+following_state = ascent_2
+set_target_altitude = 100
 
-[ascent_2]
-enable_rcs = False
-throttle = 100
-target_pitch = 0
-target_heading = 0
 
 [outta_gas]
-throttle = 0
+command_throttle = 0
 
 [shutdown_abort]
 enable_rcs = False
-throttle = 0
-# blow up
+command_throttle = 0
+self_destruct = True
 
 [ballistic]
-throttle = 0
+command_throttle = 0
 
 [abort]
-throttle = 0
+command_throttle = 0
 enable_sas = False
 enable_rcs = False
+self_destruct = True
+command_stage = False
 
 [post_abort]
-throttle = 0
+command_throttle = 0
 enable_sas = False
 enable_rcs = False
+command_stage = False
 
 [safe]
-throttle = 0
+command_throttle = 0
 enable_sas = False
 enable_rcs = False
+command_stage = False
 
