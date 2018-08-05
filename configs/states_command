@@ -31,7 +31,7 @@ command_stage = True
 
 [begin_turn]
 command_throttle = 75
-command_pitch = 89
+command_pitch = 87
 set_target_altitude = 1
 following_state = ascent_1
 
@@ -49,11 +49,18 @@ set_target_altitude = 12
 following_state = ascent_2
 
 [ascent_2]
-command_throttle = 85
-command_pitch = 30
+command_throttle = 70
+command_pitch = 45
 enable_rcs = True
-command_throttle = 100
 set_target_altitude = 60
+following_state = ascent_3
+
+
+[ascent_3]
+command_throttle = 85
+command_pitch = 5
+enable_rcs = True
+set_target_altitude = 70
 following_state = coast
 
 [coast]
