@@ -32,7 +32,7 @@ transitions = shutdown_abort,ascent_2,transsonic
 abort = shutdown_abort
 
 [ascent_2]
-transitions = abort,outta_gas,coast,ascent_3
+transitions = abort,outta_gas,coast
 abort = abort
 
 [ascent_3]
@@ -48,7 +48,7 @@ transitions = safe
 abort = safe
 
 [coast]
-transitions = abort
+transitions = abort,ballistic
 abort = abort
 
 [ballistic]

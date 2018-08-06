@@ -74,6 +74,7 @@ class state_machine:
       # checks. In those cases, we need to start a timer to trans
       # between stages, rather than check flight characteristics. 
       timed_state = False
+      self.flight.staging = False
       time_in_state = None
       next_state = None
       for command, value in self.commands_map[self.state]:
@@ -86,6 +87,7 @@ class state_machine:
         if command == 'following_state':
           next_state = value 
       if self.flight.staging:
+        print("Activating staging")
         self.vehicle.control.activate_next_stage()
       print(" - Timed state: " + str(timed_state))
       if timed_state:

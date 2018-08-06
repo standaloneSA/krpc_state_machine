@@ -37,8 +37,8 @@ following_state = ascent_1
 
 [ascent_1]
 command_throttle = 75
-command_pitch = 85
 command_heading = 90
+command_pitch = follow_path
 set_target_speed = mach1
 following_state = transsonic
 set_target_altitude = 
@@ -50,27 +50,17 @@ following_state = ascent_2
 
 [ascent_2]
 command_throttle = 70
-command_pitch = 45
+command_pitch = follow_path
 enable_rcs = True
 set_target_altitude = 60
-following_state = ascent_3
-
-
-[ascent_3]
-command_throttle = 85
-command_pitch = 5
-enable_rcs = True
-set_target_altitude = 70
 following_state = coast
 
 [coast]
 enable_rcs = True
 command_throttle = 0
 command_pitch = 0
-command_heading = 0
-following_state = ascent_2
-set_target_altitude = 100
-
+following_state = ballistic
+set_target_altitude = 120
 
 [outta_gas]
 command_throttle = 0
@@ -81,7 +71,10 @@ command_throttle = 0
 self_destruct = True
 
 [ballistic]
-command_throttle = 0
+command_throttle = 20
+command_pitch = 0
+set_target_altitude = 99999
+following_state = abort
 
 [abort]
 command_throttle = 0
