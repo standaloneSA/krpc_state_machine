@@ -6,6 +6,7 @@ import atexit
 from base_config import str2bool
 import base_config
 from state_machine import state_machine
+import time
 
 print(chr(27)+'[2j')
 print('\033c')
@@ -33,7 +34,6 @@ abort.add_callback(sm.abort)
 abort.start()
 
 sm.trans('pre_hold')
-
 while sm.state != "abort":
   next_state = sm.flight.ready_for_state_change()
   if next_state:

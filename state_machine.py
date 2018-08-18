@@ -1,4 +1,5 @@
 import sys
+import time
 from ConfigParser import ConfigParser
 from flight import Flight
 import threading
@@ -68,7 +69,6 @@ class state_machine:
     """
     if new_state == self.state:
        return 
-
     if new_state in self.transition_map[self.state]:
       self.state = new_state 
       print("")
@@ -93,11 +93,12 @@ class state_machine:
 
         if command == 'following_state':
           self.next_state = value 
+
         if command == 'command_pitch' and value == 'follow_path':
           self.engines_need_update = True
 
       if self.flight.staging:
-        print("Activating staging")
+        print("  *** Activating staging")
         self.vehicle.control.activate_next_stage()
       print(" - Timed state: " + str(self.timed_state))
       if self.timed_state:

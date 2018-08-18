@@ -1,6 +1,8 @@
 import math
+import time
 import numpy
 from scipy.misc import derivative
+from scipy.interpolate import interp1d
 import launch_profiles
 
 numpy.seterr(all='ignore')
@@ -67,18 +69,17 @@ class Flight:
     self.staging = str2bool(do_it)
 
   def enable_sas(self, sas):
+    sas = str2bool(sas)
+
     """ Set whether sas is enabled """
-    if str2bool(sas):
+    if sas:
       print("   Engaging SAS")
       self.vehicle.auto_pilot.engage()
-      self.vehicle.auto_pilot.sas = True
-      self.conn.space_center.active_vessel.control.sas = True
-      print(self.vehicle.auto_pilot.sas)
-      print(self.vehicle.control.sas)
+      #self.vehicle.control.sas = True
     else:
       print("   Disengaging SAS")
-      self.vehicle.auto_pilot.disengage()
       self.vehicle.control.sas = False
+      self.vehicle.auto_pilot.disengage()
 
   def enable_rcs(self, rcs):
     """ Set whether RCS is enabled """
@@ -92,6 +93,7 @@ class Flight:
 
   def command_pitch(self, pitch):
     """ Controls the pitch of the vehicle """
+    print("Target Pitch: " + str(self.vehicle.auto_pilot.target_pitch))
     if pitch == "follow_path":
       pass
     elif pitch == "keep":
@@ -100,8 +102,14 @@ class Flight:
       self.vehicle.auto_pilot.target_pitch = float(pitch)
 
   def command_heading(self, heading):
-    """ Controls the heading of the vehicle """
-    self.vehicle.auto_pilot.target_heading = float(heading)
+    """ 
+      Controls the heading of the vehicle 
+      Note: Until we get autopilot to work, we will have to 
+      provide an absolute control input. 
+
+      This will require some math. 
+    """
+    pass
 
   def self_destruct(self, destruct):
     """ Blow up the ship, presumably for safety reasons """
