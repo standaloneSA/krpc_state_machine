@@ -8,6 +8,9 @@ launch_time = 11
 time_in_state = 8
 following_state = startup
 enable_rcs = False
+command_throttle = 0
+set_target_apoapsis = 120000
+set_target_periapsis = 120000
 
 [startup]
 time_in_state = 1
@@ -31,8 +34,9 @@ command_stage = True
 
 [begin_turn]
 enable_sas = True
+enable_rcs = False
 command_throttle = 75
-command_pitch = 87
+command_pitch = 88
 set_target_altitude = 1
 following_state = ascent_1
 
@@ -47,12 +51,14 @@ set_target_altitude =
 
 [transsonic]
 enable_sas = True
+set_target_speed = None
 command_throttle = 60
 set_target_altitude = 9
 following_state = ascent_2
-command_pitch = follow_path
+command_pitch = keep
 
 [ascent_2]
+mach_check = False
 enable_sas = True
 command_throttle = 70
 command_pitch = follow_path
@@ -65,8 +71,8 @@ enable_sas = True
 enable_rcs = True
 command_throttle = 0
 command_pitch = 0
-following_state = ballistic
-set_target_altitude = 120
+following_state = circularize
+set_target_altitude = 119
 
 [outta_gas]
 command_throttle = 0
@@ -76,11 +82,11 @@ enable_rcs = False
 command_throttle = 0
 self_destruct = True
 
-[ballistic]
-command_throttle = 20
+[circularize]
+command_throttle = 80
 command_pitch = 0
 set_target_altitude = 99999
-following_state = abort
+following_state = safe
 
 [abort]
 command_throttle = 0

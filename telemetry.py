@@ -32,7 +32,8 @@ def print_there(x, y, string):
 def f(x):
   return 25*numpy.log2(0.3*x)+90
 
-def print_telem(ftl):
+def print_telem(v):
+  flt = v.flight()
   downrange = ftl.longitude - initial_long
   proposed_angle = derivative(f, 1 + downrange)
   if proposed_angle > 90 or math.isnan(proposed_angle):
@@ -41,8 +42,8 @@ def print_telem(ftl):
   print_there(0, 2, "Altitude: %.2fm" % ftl.mean_altitude)
   print_there(0, 3, "%.2fg" % ftl.g_force)
   print_there(0, 4, "%sm/s (mach %.2f)" % (ftl.speed, ftl.mach))
-  print_there(0, 5, "%sdeg pitch" % ftl.pitch)
-  print_there(0, 6, "%sdeg heading" % ftl.heading)
+  print_there(0, 5, "%.2fdeg pitch (%.2f commanded)" % (ftl.pitch, v.auto_pilot.target_pitch))
+  print_there(0, 6, "%.2fdeg heading (%.2f commanded)" % (ftl.heading, v.auto_pilot.target_heading))
   print_there(0, 7, "%.2fQ" % ftl.dynamic_pressure)
   print_there(0, 8, "%fdeg down range" % downrange)
   print_there(0, 8, "Proposed command angle: %.2f" % proposed_angle)
@@ -56,7 +57,7 @@ ftl = vessel.flight()
 initial_long = ftl.longitude
 # Main loop
 while True:
-  print_telem(ftl)
+  print_telem(vessel)
   time.sleep(0.5)
 
 curses.endwin()

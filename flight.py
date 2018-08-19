@@ -24,8 +24,11 @@ class Flight:
   apoapsis = None
   target_speed = None
   target_altitude = None
+  target_apoapsis = None
+  target_periapsis = None
   ascent_profile = None
   initial_longitude = None
+  mach_check = True
 
 
   profiles = {
@@ -35,7 +38,6 @@ class Flight:
     'escape': launch_profiles.escape_profile
   }
 
-  
   def __init__(self, conn):
     """ 
       Takes a state_machine object that has been initialized
@@ -93,13 +95,26 @@ class Flight:
 
   def command_pitch(self, pitch):
     """ Controls the pitch of the vehicle """
-    print("Target Pitch: " + str(self.vehicle.auto_pilot.target_pitch))
+    #print("Target Pitch: " + str(self.vehicle.auto_pilot.target_pitch))
     if pitch == "follow_path":
       pass
     elif pitch == "keep":
       self.vehicle.auto_pilot.target_pitch = self.vehicle.flight().pitch
     else:
       self.vehicle.auto_pilot.target_pitch = float(pitch)
+
+  def command_yaw(self, yaw):
+    """ Controls the yaw of the vehicle """
+    if yaw == "follow_path":
+      pass
+    elif yaw == "keep":
+      self.vehicle.auto_pilot.target_yaw = self.vehicle.flight().yaw
+    else:
+      self.vehicle.auto_pilot.target_yaw = float(yaw)
+
+  def command_roll(self, roll):
+    """ Controls the roll of the vehicle """
+    self.vehicle.auto_pilot.target_roll = float(roll)
 
   def command_heading(self, heading):
     """ 
@@ -109,11 +124,19 @@ class Flight:
 
       This will require some math. 
     """
-    pass
+    self.vehicle.auto_pilot.target_heading = float(heading)
 
   def self_destruct(self, destruct):
     """ Blow up the ship, presumably for safety reasons """
     pass
+
+  def set_target_apoapsis(self, altitude):
+    """ Set the target altitude for the apoapsis """
+    self.target_apoapsis = float(altitude)
+
+  def set_target_periapsis(self, altitude):
+    """ Set the target altitude for the periapsis """
+    self.target_periapsis = float(altitude)
 
   def set_target_altitude(self, altitude):
     """ Set the target altitude for this state """
@@ -127,6 +150,12 @@ class Flight:
   def set_target_speed(self, speed):
     """ Set the target speed for this state """
     self.target_speed = speed
+
+  def mach_check(self, setting):
+    """ Some flight regimes show up as hitting mach, but
+        we don't want to consider them for transmach tests
+    """
+    self.mach_check = setting
 
   def is_transmach(self):
     """
@@ -145,23 +174,37 @@ class Flight:
       differentiating the result, then determing the angle to pitch
       over the rocket by. 
     """
+    pass
     downrange = self.vehicle.flight().longitude - self.initial_longitude
     angle = self.ascent_profile(downrange)
     if angle > 90 or math.isnan(angle):
-      angle = 90
-    self.command_heading(angle)
+       angle = 90
+    self.command_pitch(angle)
 
   def ready_for_state_change(self):
     """ See if we are hitting our targets """
     altitude = self.altitude()
-    apoapsis = int(self.apoapsis())
 
     if self.target_altitude != None:
       if altitude >= (self.target_altitude * 1000):
         return self.next_state
+    if self.target_apoapsis != None:
+      if self.target_apoapsis <= self.vehicle.orbit.apoapsis_altitude:
+        print("Met target apoapsis")
+        self.target_apoapsis = None
+        return self.next_state
+    if self.target_periapsis != None:
+      peri = self.vehicle.orbit.periapsis_altitude
+      if (self.target_periapsis * 0.9) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.1):
+        print("Met target periapsis")
+        self.target_periapsis = None
+        return self.next_state
+    if self.vehicle.resources.amount('LiquidFuel') < 0.1 or self.vehicle.resources.amount('Oxidizer') < 0.1:
+      return 'outta_gas'
     if self.target_speed != None:
-      if self.target_speed == "mach1":
-        if self.is_transmach():
-          return 'transsonic'  
+      if self.mach_check: 
+        if self.target_speed == "mach1":
+          if self.is_transmach():
+            return 'transsonic'  
     return False
 

@@ -6,7 +6,8 @@ numpy.seterr(all='ignore')
 
 def leo_normal_profile_log(x):
   """ Function to pass to scipi's derivative function """
-  return 25*numpy.log2(0.3*x)+90
+  val = 35*numpy.log2(0.5*x)+90
+  return val
 
 def leo_normal_profile(downrange):
   return derivative(leo_normal_profile_log, 1 + downrange)
