@@ -195,11 +195,11 @@ class Flight:
         return self.next_state
     if self.target_periapsis != None:
       peri = self.vehicle.orbit.periapsis_altitude
-      if (self.target_periapsis * 0.9) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.1):
+      if (self.target_periapsis * 0.95) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.05):
         print("Met target periapsis")
         self.target_periapsis = None
         return self.next_state
-    if self.vehicle.resources.amount('LiquidFuel') < 0.1 or self.vehicle.resources.amount('Oxidizer') < 0.1:
+    if self.vehicle.resources.amount('LiquidFuel') < 0. or self.vehicle.resources.amount('Oxidizer') < 0.1:
       return 'outta_gas'
     if self.target_speed != None:
       if self.mach_check: 

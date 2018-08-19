@@ -2,6 +2,7 @@
 
 [pre_hold]
 set_launch_profile = leo_normal
+set_launch_profile = leo_steep
 # seconds till launch
 enable_sas = True
 launch_time = 11
