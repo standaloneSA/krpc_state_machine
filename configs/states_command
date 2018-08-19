@@ -36,7 +36,7 @@ command_stage = True
 enable_sas = True
 enable_rcs = False
 command_throttle = 75
-command_pitch = 88
+command_pitch = 87.5
 set_target_altitude = 1
 following_state = ascent_1
 
@@ -44,7 +44,7 @@ following_state = ascent_1
 enable_sas = True
 command_throttle = 75
 command_heading = 90
-command_pitch = follow_path
+command_pitch = keep
 set_target_speed = mach1
 following_state = transsonic
 set_target_altitude = 
