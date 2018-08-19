@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, handle_ctrlc)
 atexit.register(abort)
 
 conn = base_config.begin()
-sm = state_machine(conn, conn.space_center.active_vessel)
+sm = state_machine(conn, conn.space_center.active_vessel, "single_stage_leo")
 
 # Add the callback to trigger abort from in-game
 abort = conn.add_stream(getattr, sm.vehicle.control, 'abort')

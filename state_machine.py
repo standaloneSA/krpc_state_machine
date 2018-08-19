@@ -29,12 +29,12 @@ class state_machine:
   next_state = None
   engines_need_update = False
     
-  def __init__(self, conn, vehicle):
+  def __init__(self, conn, vehicle, flight_config):
     """ Read the config and set the initial transition map """
 
     self.conn = conn
-    state_cfgfile = "configs/states_transitions"
-    state_commands_cfgfile = "configs/states_command"
+    state_cfgfile = str(flight_config) + "/states_transitions"
+    state_commands_cfgfile = str(flight_config) + "/states_command"
 
     state_config = ConfigParser()
     state_config.readfp(open(state_cfgfile))

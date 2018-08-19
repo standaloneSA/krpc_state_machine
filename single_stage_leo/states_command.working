@@ -1,0 +1,106 @@
+[init]
+
+[pre_hold]
+# seconds till launch
+launch_time = 11
+time_in_state = 8
+following_state = startup
+enable_sas = True
+enable_rcs = False
+
+[startup]
+time_in_state = 1
+following_state = ignition
+command_throttle = 0
+
+[ignition]
+enable_sas = True
+time_in_state = 2
+following_state = launch
+command_stage = True
+command_throttle = 20
+
+[launch]
+enable_sas = True
+command_throttle = 100
+command_pitch = 90
+command_heading = 90
+set_target_altitude = 0.1
+following_state = begin_turn
+command_stage = True
+
+[begin_turn]
+command_throttle = 75
+command_pitch = 87
+set_target_altitude = 1
+following_state = ascent_1
+
+[ascent_1]
+command_throttle = 75
+command_pitch = 85
+command_heading = 90
+set_target_speed = mach1
+following_state = transsonic
+set_target_altitude = 
+
+[transsonic]
+command_throttle = 60
+set_target_altitude = 12
+following_state = ascent_2
+
+[ascent_2]
+command_throttle = 70
+command_pitch = 45
+enable_rcs = True
+set_target_altitude = 60
+following_state = ascent_3
+
+
+[ascent_3]
+command_throttle = 85
+command_pitch = 5
+enable_rcs = True
+set_target_altitude = 70
+following_state = coast
+
+[coast]
+enable_rcs = True
+command_throttle = 0
+command_pitch = 0
+following_state = ballistic
+set_target_altitude = 120
+
+
+[outta_gas]
+command_throttle = 0
+
+[shutdown_abort]
+enable_rcs = False
+command_throttle = 0
+self_destruct = True
+
+[ballistic]
+command_throttle = 20
+command_pitch = -25
+set_target_altitude = 99999
+following_state = abort
+
+[abort]
+command_throttle = 0
+enable_sas = False
+enable_rcs = False
+self_destruct = True
+command_stage = False
+
+[post_abort]
+command_throttle = 0
+enable_sas = False
+enable_rcs = False
+command_stage = False
+
+[safe]
+command_throttle = 0
+enable_sas = False
+enable_rcs = False
+command_stage = False
+
