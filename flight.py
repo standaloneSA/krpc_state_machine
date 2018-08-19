@@ -1,6 +1,7 @@
 import math
 import time
 import numpy
+from datetime import datetime, timedelta
 from scipy.misc import derivative
 from scipy.interpolate import interp1d
 import launch_profiles
@@ -28,6 +29,7 @@ class Flight:
   target_periapsis = None
   ascent_profile = None
   initial_longitude = None
+  fairing_deploy = None
   mach_check = True
 
 
@@ -56,11 +58,19 @@ class Flight:
 
   def launch_time(self, seconds):
     """ Update the countdown clock """
+    self.launch_time = datetime.now() + timedelta(0, int(seconds))
     self.countdown = seconds
 
   def time_in_state(self, seconds):
     """ Sets a timer to actually transition to next state """ 
     self.state_timer = seconds
+
+  def set_tminus_zero(self, time=None):
+    """ Sets the time for the launch timer """
+    if time != "True":
+      self.launch_time = time
+    else:
+      self.launch_time = datetime.now()
 
   def following_state(self, next_state):
     """ If we have a timer, then when the timer expires, go here """
@@ -75,11 +85,9 @@ class Flight:
 
     """ Set whether sas is enabled """
     if sas:
-      print("   Engaging SAS")
       self.vehicle.auto_pilot.engage()
       #self.vehicle.control.sas = True
     else:
-      print("   Disengaging SAS")
       self.vehicle.control.sas = False
       self.vehicle.auto_pilot.disengage()
 
@@ -167,6 +175,24 @@ class Flight:
       return True
     return False
 
+  def fairing_sep(self, altitude):
+    """ Set the altitude for fairing deploy """
+    self.fairing_deploy = altitude
+
+  def deploy_payload(self, value):
+    """ We assume that the next decoupler is a payload despensor
+        and so we trigger it to releaes a payload. We only do one
+        in case we are releasing a constellation, so we can do
+        this many times 
+    """
+    if str2bool(value):
+      print(" *** Deploying payload")
+      self.vehicle.parts.decouplers[0].decouple()
+
+  def activate_engine(self, engine):
+    """ After staging, engines may be manually activated """
+    self.vehicle.parts.engines[0].active = True
+
   def update_engines(self):
     """ 
       This function is used to command the vehicle to a certain
@@ -185,26 +211,38 @@ class Flight:
     """ See if we are hitting our targets """
     altitude = self.altitude()
 
+    if self.fairing_deploy:
+      if altitude >= float(self.fairing_deploy):
+        self.fairing_deploy = False
+        print("  *** Deploying fairing")
+
+        # This won't work for more complicated vehicle setups, but it is
+        # simplistic enough to start with. 
+        for fairing in self.vehicle.parts.fairings:
+          fairing.jettison()
     if self.target_altitude != None:
-      if altitude >= (self.target_altitude * 1000):
+      if altitude >= self.target_altitude:
+        print("  *** Target altitude hit")
         return self.next_state
     if self.target_apoapsis != None:
       if self.target_apoapsis <= self.vehicle.orbit.apoapsis_altitude:
-        print("Met target apoapsis")
+        print("  *** Met target apoapsis")
         self.target_apoapsis = None
         return self.next_state
     if self.target_periapsis != None:
       peri = self.vehicle.orbit.periapsis_altitude
       if (self.target_periapsis * 0.95) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.05):
-        print("Met target periapsis")
+        print("  *** Met target periapsis")
         self.target_periapsis = None
         return self.next_state
     if self.vehicle.resources.amount('LiquidFuel') < 0. or self.vehicle.resources.amount('Oxidizer') < 0.1:
+      print("  *** Out of propellant")
       return 'outta_gas'
     if self.target_speed != None:
       if self.mach_check: 
         if self.target_speed == "mach1":
           if self.is_transmach():
+            print("  *** Entering transsonic regime")
             return 'transsonic'  
     return False
 

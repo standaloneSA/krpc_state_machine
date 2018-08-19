@@ -29,7 +29,7 @@ enable_sas = True
 command_throttle = 100
 command_pitch = 90
 command_heading = 90
-set_target_altitude = 0.1
+set_target_altitude = 100
 following_state = begin_turn
 command_stage = True
 
@@ -38,7 +38,7 @@ enable_sas = True
 enable_rcs = False
 command_throttle = 75
 command_pitch = 87.5
-set_target_altitude = 1
+set_target_altitude = 1000
 following_state = ascent_1
 
 [ascent_1]
@@ -54,7 +54,7 @@ set_target_altitude =
 enable_sas = True
 set_target_speed = None
 command_throttle = 60
-set_target_altitude = 9
+set_target_altitude = 9000
 following_state = ascent_2
 command_pitch = keep
 
@@ -64,7 +64,7 @@ enable_sas = True
 command_throttle = 70
 command_pitch = follow_path
 enable_rcs = True
-set_target_altitude = 60
+set_target_altitude = 60000
 following_state = coast
 
 [coast]
@@ -73,7 +73,7 @@ enable_rcs = True
 command_throttle = 0
 command_pitch = 0
 following_state = circularize
-set_target_altitude = 119
+set_target_altitude = 119000
 
 [outta_gas]
 command_throttle = 0
@@ -86,22 +86,25 @@ self_destruct = True
 [circularize]
 command_throttle = 80
 command_pitch = 0
-set_target_altitude = 99999
+set_target_altitude =
 following_state = safe
 
 [abort]
 command_throttle = 0
+set_target_altitude =
 enable_rcs = False
 self_destruct = True
 command_stage = False
 
 [post_abort]
+set_target_altitude =
 command_throttle = 0
 enable_sas = False
 enable_rcs = False
 command_stage = False
 
 [safe]
+set_target_altitude = 
 command_throttle = 0
 enable_sas = False
 enable_rcs = False

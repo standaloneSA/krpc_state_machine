@@ -47,7 +47,7 @@ def print_telem(v):
   print_there(0, 7, "%.2fQ" % ftl.dynamic_pressure)
   print_there(0, 8, "%fdeg down range" % downrange)
   print_there(0, 8, "Proposed command angle: %.2f" % proposed_angle)
-
+  print_there(0, 9, "Orbit: %0.2f x %0.2f" % (v.orbit.periapsis_altitude, v.orbit.apoapsis_altitude))
 
 # connect to kerbal and get the vehicle
 conn = base_config.begin("telemetry")

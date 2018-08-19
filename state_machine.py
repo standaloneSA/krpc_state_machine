@@ -1,5 +1,6 @@
 import sys
 import time
+from datetime import datetime, timedelta
 from ConfigParser import ConfigParser
 from flight import Flight
 import threading
@@ -16,7 +17,9 @@ class state_machine:
   initial_state = None
   flight = None
   vehicle = None
-  conn = None
+  conn = None 
+  # Need a launch_time. Default to 60 seconds from now
+  launch_time = (datetime.now() + timedelta(1)).second
   
   transition_map = {}
   abort_map = {}
@@ -73,6 +76,10 @@ class state_machine:
       self.state = new_state 
       print("")
       print("[" + new_state + "]")
+      try:
+        print("T+%s" % (datetime.now() - self.flight.launch_time).seconds)
+      except Exception:
+        pass
       self.conn.ui.message("[" + new_state + "]", duration=5.0)
 
       # Some stages before launch require timing rather than flight
