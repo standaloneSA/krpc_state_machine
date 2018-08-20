@@ -1,8 +1,0 @@
-[vehicles]
-vehicles = 1
-
-[vehicle_1]
-name = Sounding Rocket
-type = ship
-
-

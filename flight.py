@@ -30,7 +30,8 @@ class Flight:
   ascent_profile = None
   initial_longitude = None
   fairing_deploy = None
-  mach_check = True
+  engine_out_response_state = None
+  mach_check_bool = True
 
 
   profiles = {
@@ -58,7 +59,7 @@ class Flight:
 
   def launch_time(self, seconds):
     """ Update the countdown clock """
-    self.launch_time = datetime.now() + timedelta(0, int(seconds))
+    self.launch_time = datetime.now() + timedelta(0, float(seconds))
     self.countdown = seconds
 
   def time_in_state(self, seconds):
@@ -163,7 +164,7 @@ class Flight:
     """ Some flight regimes show up as hitting mach, but
         we don't want to consider them for transmach tests
     """
-    self.mach_check = setting
+    self.mach_check_bool = str2bool(setting)
 
   def is_transmach(self):
     """
@@ -193,6 +194,10 @@ class Flight:
     """ After staging, engines may be manually activated """
     self.vehicle.parts.engines[0].active = True
 
+  def engine_out_response(self, state):
+    """ What do we do if we encounter engine.has_fuel = False """
+    self.engine_out_response_state = state
+
   def update_engines(self):
     """ 
       This function is used to command the vehicle to a certain
@@ -220,6 +225,13 @@ class Flight:
         # simplistic enough to start with. 
         for fairing in self.vehicle.parts.fairings:
           fairing.jettison()
+    if self.engine_out_response_state:
+      for engine in self.vehicle.parts.engines:
+        if not engine.has_fuel:
+          print ("  *** Engine fuel depeleted")
+          self.next_state = self.engine_out_response_state
+          self.engine_out_response_state = None
+          return self.next_state
     if self.target_altitude != None:
       if altitude >= self.target_altitude:
         print("  *** Target altitude hit")
@@ -239,7 +251,7 @@ class Flight:
       print("  *** Out of propellant")
       return 'outta_gas'
     if self.target_speed != None:
-      if self.mach_check: 
+      if self.mach_check_bool: 
         if self.target_speed == "mach1":
           if self.is_transmach():
             print("  *** Entering transsonic regime")

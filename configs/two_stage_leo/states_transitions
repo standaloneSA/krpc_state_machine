@@ -1,0 +1,72 @@
+[init]
+initial_state = True
+transitions = pre_hold,safe
+abort = safe
+
+[pre_hold]
+transitions = startup,safe
+abort = safe
+
+[startup]
+transitions = ignition,shutdown_abort
+abort = shutdown_abort
+
+[ignition]
+transitions = launch,shutdown_abort
+abort = shutdown_abort
+
+[launch]
+transitions = begin_turn,shutdown_abort,transsonic
+abort = shutdown_abort
+
+[begin_turn]
+transitions = abort,outta_gas,ascent_1,transsonic
+abort = abort
+
+[ascent_1]
+transitions = abort,outta_gas,coast,transsonic
+abort = abort
+
+[transsonic]
+transitions = shutdown_abort,ascent_2,transsonic
+abort = shutdown_abort
+
+[ascent_2]
+transitions = abort,outta_gas,coast
+abort = abort
+
+[outta_gas]
+transitions = ballistic,abort
+abort = abort
+
+[shutdown_abort]
+transitions = safe
+abort = safe
+
+[coast]
+transitions = abort,stage_sep
+abort = abort
+
+[stage_sep]
+transitions = abort,circularize
+abort = abort
+
+[circularize]
+transitions = abort,payload_deploy 
+abort = abort
+
+[payload_deploy]
+transitions = safe
+abort = safe
+
+[abort]
+transitions = post_abort
+abort = post_abort
+
+[post_abort]
+transitions =
+abort = post_abort
+
+[safe]
+transitions = 
+abort = safe

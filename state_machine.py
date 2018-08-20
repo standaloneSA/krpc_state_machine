@@ -96,7 +96,7 @@ class state_machine:
         getattr(self.flight, command)(value)
         if command == "time_in_state":
           self.timed_state = True
-          self.time_in_state = int(value)
+          self.time_in_state = float(value)
 
         if command == 'following_state':
           self.next_state = value 
@@ -113,7 +113,7 @@ class state_machine:
         timer = threading.Timer(self.time_in_state, self.trans, args=[self.next_state])
         timer.start()
     else:
-      print("Unable to transition to " + new_state + ". Aborting.")
+      print("Unable to transition to " + str(new_state) + ". Aborting.")
       self.abort("foo") 
 
   def vector_needs_updates(self):

@@ -25,8 +25,13 @@ def handle_ctrlc(sig, frame):
 signal.signal(signal.SIGINT, handle_ctrlc)
 atexit.register(abort)
 
+#config = "single_stage_leo"
+#config = "two_stage_leo"
+config = "kerbalx"
+
 conn = base_config.begin()
-sm = state_machine(conn, conn.space_center.active_vessel, "configs/two_stage_leo")
+sm = state_machine(conn, conn.space_center.active_vessel, "configs/" + config)
+#sm = state_machine(conn, conn.space_center.active_vessel, "configs/two_stage_leo")
 #sm = state_machine(conn, conn.space_center.active_vessel, "configs/single_stage_leo")
 
 # Add the callback to trigger abort from in-game
@@ -34,6 +39,7 @@ abort = conn.add_stream(getattr, sm.vehicle.control, 'abort')
 abort.add_callback(sm.abort)
 abort.start()
 
+print("Beginning launch with %s config" % config)
 sm.trans('pre_hold')
 while sm.state != "abort":
   next_state = sm.flight.ready_for_state_change()
