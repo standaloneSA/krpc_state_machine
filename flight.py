@@ -141,7 +141,10 @@ class Flight:
 
   def set_target_apoapsis(self, altitude):
     """ Set the target altitude for the apoapsis """
-    self.target_apoapsis = float(altitude)
+    if altitude == "None":
+      self.target_apoapsis = None
+    else:
+      self.target_apoapsis = float(altitude)
 
   def set_target_periapsis(self, altitude):
     """ Set the target altitude for the periapsis """
@@ -149,7 +152,9 @@ class Flight:
 
   def set_target_altitude(self, altitude):
     """ Set the target altitude for this state """
-    if altitude == "apoapis":
+    if altitude == "None":
+       self.target_altitude = None
+    elif altitude == "apoapsis":
       self.target_altitude = self.apoapsis()
     elif altitude == "":
       self.target_altitude = None

@@ -66,7 +66,7 @@ command_throttle = 80
 command_pitch = follow_path
 enable_rcs = True
 set_target_altitude = 60000
-following_state = coast
+following_state = coast_1
 engine_out_response = booster_sep
 
 [booster_sep]
@@ -74,26 +74,43 @@ command_stage = True
 following_state = ascent_1
 time_in_state = 0.5
 
-
-[coast]
+[coast_1]
 enable_sas = True
 enable_rcs = True
 command_throttle = 0
 command_pitch = 0
 following_state = stage_sep
-set_target_altitude = 90000
+set_target_altitude = 71000
 
 [stage_sep]
 set_target_altitude = 
 command_stage = True
-following_state = circularize
+following_state = get_some_distance
 time_in_state = 3
 
+[get_some_distance]
+time_in_state = 1
+activate_engine = True
+command_throttle = 10
+command_pitch = keep
+following_state = coast_2
+
+[coast_2]
+enable_sas = True
+enable_rcs = True
+command_throttle = 0
+command_pitch = 0
+following_state = circularize
+set_target_altitude = apoapsis
+
+
 [circularize]
+set_target_altitude = None
 activate_engine = True
 command_stage = False
-command_throttle = 80
+command_throttle = 75
 command_pitch = 0
+set_target_apoapsis = None
 following_state = cap_cruise
 
 [cap_cruise]

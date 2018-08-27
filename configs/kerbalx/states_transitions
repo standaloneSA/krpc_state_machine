@@ -24,7 +24,7 @@ transitions = abort,outta_gas,ascent_1,transsonic
 abort = abort
 
 [ascent_1]
-transitions = abort,outta_gas,coast,transsonic,booster_sep,ascent_2
+transitions = abort,outta_gas,transsonic,booster_sep,ascent_2
 abort = abort
 
 [transsonic]
@@ -32,7 +32,7 @@ transitions = shutdown_abort,ascent_2,transsonic
 abort = shutdown_abort
 
 [ascent_2]
-transitions = abort,outta_gas,coast,booster_sep
+transitions = abort,outta_gas,coast_1,booster_sep
 abort = abort
 
 [booster_sep]
@@ -47,11 +47,19 @@ abort = abort
 transitions = safe
 abort = safe
 
-[coast]
+[coast_1]
 transitions = abort,stage_sep
 abort = abort
 
 [stage_sep]
+transitions = abort,get_some_distance
+abort = abort
+
+[get_some_distance]
+transitions = abort,coast_2
+abort = abort
+
+[coast_2]
 transitions = abort,circularize
 abort = abort
 
