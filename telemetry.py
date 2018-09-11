@@ -33,7 +33,8 @@ def f(x):
   return 25*numpy.log2(0.3*x)+90
 
 def print_telem(v):
-  flt = v.flight()
+  ref = v.orbit.body.reference_frame
+  ftl = v.flight(ref)
   downrange = ftl.longitude - initial_long
   proposed_angle = derivative(f, 1 + downrange)
   if proposed_angle > 90 or math.isnan(proposed_angle):
@@ -41,7 +42,7 @@ def print_telem(v):
   print_there(0, 1, "%f, %f" % (ftl.latitude, ftl.longitude))
   print_there(0, 2, "Altitude: %.2fm" % ftl.mean_altitude)
   print_there(0, 3, "%.2fg" % ftl.g_force)
-  print_there(0, 4, "%sm/s (mach %.2f)" % (ftl.speed, ftl.mach))
+  print_there(0, 4, "%.2fm/s (mach %.2f)" % (ftl.speed, ftl.mach))
   print_there(0, 5, "%.2fdeg pitch (%.2f commanded)" % (ftl.pitch, v.auto_pilot.target_pitch))
   print_there(0, 6, "%.2fdeg heading (%.2f commanded)" % (ftl.heading, v.auto_pilot.target_heading))
   print_there(0, 7, "%.2fQ" % ftl.dynamic_pressure)

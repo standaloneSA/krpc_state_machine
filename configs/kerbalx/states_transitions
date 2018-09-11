@@ -40,8 +40,20 @@ transitions = ascent_1,ascent_2,abort
 abort = abort
 
 [outta_gas]
-transitions = ballistic,abort
+transitions = ballistic,abort,reentry
 abort = abort
+
+[reentry]
+transitions = deploy_chutes
+abort = deploy_chutes
+
+[deploy_chutes]
+transitions = welcome_home,safe
+abort = safe
+
+[welcome_home]
+transitions = safe
+abort = safe
 
 [shutdown_abort]
 transitions = safe
@@ -60,19 +72,19 @@ transitions = abort,coast_2
 abort = abort
 
 [coast_2]
-transitions = abort,circularize
+transitions = abort,circularize,reentry
 abort = abort
 
 [circularize]
-transitions = abort,capsule_deploy,cap_cruise
+transitions = abort,capsule_deploy,cap_cruise,outta_gas,deorbit_burn,reentry
 abort = abort
 
 [cap_cruise]
-transitions = capsule_deploy, abort
+transitions = capsule_deploy,abort,deorbit_burn,reentry,safe_orbit
 abort = abort
 
 [capsule_deploy]
-transitions = safe
+transitions = safe,outta_gas,reentry
 abort = safe
 
 [abort]
@@ -82,6 +94,14 @@ abort = post_abort
 [post_abort]
 transitions =
 abort = post_abort
+
+[safe_orbit]
+transitions = deorbit_burn,reentry
+abort = safe
+
+[deorbit_burn]
+transitions = reentry,outta_gas
+abort = safe
 
 [safe]
 transitions = 

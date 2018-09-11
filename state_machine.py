@@ -71,6 +71,7 @@ class state_machine:
     and then do so
     """
     if new_state == self.state:
+       print("Cannot change to current state %s" % self.state)
        return 
     if new_state in self.transition_map[self.state]:
       self.state = new_state 

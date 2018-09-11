@@ -2,7 +2,6 @@
 
 [pre_hold]
 set_launch_profile = leo_steep
-# seconds till launch
 enable_sas = True
 launch_time = 11
 time_in_state = 8
@@ -11,6 +10,7 @@ enable_rcs = False
 command_throttle = 0
 set_target_apoapsis = 120000
 set_target_periapsis = 120000
+set_reentry_state = reentry
 
 [startup]
 time_in_state = 1
@@ -105,28 +105,30 @@ set_target_altitude = apoapsis
 
 
 [circularize]
-set_target_altitude = None
+set_launch_profile = adaptive
+command_pitch = follow_path
+set_target_altitude =
 activate_engine = True
 command_stage = False
 command_throttle = 75
-command_pitch = 0
-set_target_apoapsis = None
 following_state = cap_cruise
+verify_safe_orbit = True
+engine_out_response = reentry
 
 [cap_cruise]
 command_throttle = 0
 command_stage = True
-time_in_state = 5
-following_state = capsule_deploy
+time_in_state = 10
+following_state = safe_orbit
 
 [capsule_deploy]
 command_throttle = 0
 command_stage = False
-deploy_payload = True
-following_state = safe
+following_state = safe_orbit
 
 [outta_gas]
 command_throttle = 0
+following_state = safe
 
 [shutdown_abort]
 enable_rcs = False
@@ -150,4 +152,29 @@ command_throttle = 0
 enable_sas = False
 enable_rcs = False
 command_stage = False
+
+[reentry]
+command_throttle = 0
+check_for_chute_deploy = True
+command_pitch = retrograde
+command_stage = True
+following_state = deploy_chutes
+
+[deploy_chutes]
+deploy_chutes = True
+following_state = welcome_home
+
+[welcome_home]
+following_state = safe
+
+[safe_orbit]
+following_state = deorbit_burn
+time_in_state = 10
+
+
+[deorbit_burn]
+command_pitch = retrograde
+command_throttle = 80
+set_target_periapsis = 0
+following_state = reentry
 

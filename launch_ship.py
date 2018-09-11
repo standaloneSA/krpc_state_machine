@@ -44,6 +44,7 @@ sm.trans('pre_hold')
 while sm.state != "abort":
   next_state = sm.flight.ready_for_state_change()
   if next_state:
+    print("Transitioning to %s" % next_state)
     sm.trans(next_state)
   if sm.engines_need_update:
     sm.flight.update_engines()  

@@ -19,8 +19,13 @@ class Flight:
   countdown = None
   state_timer = None
   next_state = None
+  reentry_state = None
   staging = False
   _Flight = None
+
+  # Are we in reentry? 
+  reentry = False
+
   altitude = None
   apoapsis = None
   target_speed = None
@@ -32,13 +37,20 @@ class Flight:
   fairing_deploy = None
   engine_out_response_state = None
   mach_check_bool = True
-
+  safe_orbit = False
+  check_safe_orbit_bool = None
+  chute_check_bool = False
+  auto_pilot = False
+  point_to_node = None
 
   profiles = {
     'leo_normal': launch_profiles.leo_normal_profile,
     'leo_steep': launch_profiles.leo_steep_profile,
     'gto': launch_profiles.gto_profile,
-    'escape': launch_profiles.escape_profile
+    'escape': launch_profiles.escape_profile,
+    'adaptive': launch_profiles.adaptive_profile,
+    'prograde': launch_profiles.prograde_profile,
+    'retrograde': launch_profiles.retrograde_profile
   }
 
   def __init__(self, conn):
@@ -87,10 +99,12 @@ class Flight:
     """ Set whether sas is enabled """
     if sas:
       self.vehicle.auto_pilot.engage()
+      self.auto_pilot = True
       #self.vehicle.control.sas = True
     else:
       self.vehicle.control.sas = False
       self.vehicle.auto_pilot.disengage()
+      self.auto_pilot = False
 
   def enable_rcs(self, rcs):
     """ Set whether RCS is enabled """
@@ -104,11 +118,19 @@ class Flight:
 
   def command_pitch(self, pitch):
     """ Controls the pitch of the vehicle """
+    self.point_to_node = None
     #print("Target Pitch: " + str(self.vehicle.auto_pilot.target_pitch))
     if pitch == "follow_path":
       pass
+    elif pitch == "prograde":
+      if self.auto_pilot:
+        self.vehicle.auto_pilot.target_direction = self.vehicle.flight().prograde
+    elif pitch == "retrograde":
+      if self.auto_pilot:
+        self.vehicle.auto_pilot.target_direction = self.vehicle.flight().retrograde
     elif pitch == "keep":
-      self.vehicle.auto_pilot.target_pitch = self.vehicle.flight().pitch
+      if self.auto_pilot:
+        self.vehicle.auto_pilot.target_pitch = self.vehicle.flight().pitch
     else:
       self.vehicle.auto_pilot.target_pitch = float(pitch)
 
@@ -165,6 +187,36 @@ class Flight:
     """ Set the target speed for this state """
     self.target_speed = speed
 
+  def set_reentry_state(self, state):
+    """
+      Various spacecraft may care about re-entering the atmosphere. Things
+      like landing rockets, capsules, and maybe asteroids. This method
+      will allow us to change the state to whatever the given re-entry state
+      is. This state transition is triggered by being above the atmosphere 
+      and then going down to the atmosphere boundry for whatever the current
+      sphere of influence is.
+    """
+    self.reentry_state = state
+
+  def is_reentry(self):
+    """ Check if we are in reentry. Qualifications are: 
+      - At the atmospheric transition boundry for the current sphere of influence
+      - Headed in a downward trajectory
+    """
+    #print("Checking to see if we are in reentry")
+    if not self.reentry:
+      if self.vehicle.orbit.body.has_atmosphere:
+        body = self.vehicle.orbit.body
+        body_atmo = body.atmosphere_depth
+        our_altitude = self.vehicle.flight(body.reference_frame).surface_altitude
+        #print("Vertical speed is %.2f" % self.vehicle.flight(body.reference_frame).surface_altitude)
+        if self.vehicle.flight(body.reference_frame).vertical_speed < 0:
+          # going down
+          if abs(body.atmosphere_depth - our_altitude) < 100:
+            self.reentry = True
+            return True
+    return False 
+      
   def mach_check(self, setting):
     """ Some flight regimes show up as hitting mach, but
         we don't want to consider them for transmach tests
@@ -203,6 +255,31 @@ class Flight:
     """ What do we do if we encounter engine.has_fuel = False """
     self.engine_out_response_state = state
 
+  def deploy_chutes(self):
+    """ Throw the chutes and hope for the best """
+    pass
+    for chute in self.vehicle.parts.parachutes:
+      print(" *** Deploying parachute")
+      chute.deploy()
+
+  def verify_safe_orbit(self, value):
+    """ Set the bool as to whether we should check for a safe orbit """
+    self.check_safe_orbit_bool = str2bool(value)
+
+  def check_safe_orbit(self):
+    """ A safe orbit is one where we are not going to re-enter the atmosphere """
+    pass
+    body = self.vehicle.orbit.body
+    body_atmo = body.atmosphere_depth
+    if self.vehicle.orbit.periapsis_altitude > body_atmo and self.vehicle.orbit.apoapsis_altitude > body_atmo:
+      return True
+    return False
+
+  def check_for_chute_deploy(self, value):
+     if str2bool(value):
+       print("Should be checking for chute deploy")
+       self.chute_check_bool = True
+
   def update_engines(self):
     """ 
       This function is used to command the vehicle to a certain
@@ -210,11 +287,12 @@ class Flight:
       differentiating the result, then determing the angle to pitch
       over the rocket by. 
     """
-    pass
     downrange = self.vehicle.flight().longitude - self.initial_longitude
-    angle = self.ascent_profile(downrange)
+    # The magic of this next line is that self.ascent_profile is equivalent
+    # to a function. 
+    angle = self.ascent_profile(downrange, self.vehicle)
     if angle > 90 or math.isnan(angle):
-       angle = 90
+       angle = "keep"
     self.command_pitch(angle)
 
   def ready_for_state_change(self):
@@ -236,25 +314,45 @@ class Flight:
           print ("  *** Engine fuel depeleted")
           self.next_state = self.engine_out_response_state
           self.engine_out_response_state = None
+          print("returning %s" % self.next_state)
           return self.next_state
+    if self.check_safe_orbit_bool:
+      self.safe_orbit = self.check_safe_orbit()
     if self.target_altitude != None:
       if altitude >= self.target_altitude:
         print("  *** Target altitude hit")
+        print("returning %s" % self.next_state)
         return self.next_state
     if self.target_apoapsis != None:
       if self.target_apoapsis <= self.vehicle.orbit.apoapsis_altitude:
         print("  *** Met target apoapsis")
         self.target_apoapsis = None
+        print("returning %s" % self.next_state)
         return self.next_state
     if self.target_periapsis != None:
       peri = self.vehicle.orbit.periapsis_altitude
       if (self.target_periapsis * 0.95) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.05):
         print("  *** Met target periapsis")
         self.target_periapsis = None
+        print("returning %s" % self.next_state)
         return self.next_state
     if self.vehicle.resources.amount('LiquidFuel') < 0. or self.vehicle.resources.amount('Oxidizer') < 0.1:
-      print("  *** Out of propellant")
-      return 'outta_gas'
+      print("returning %s" % self.next_state)
+      return self.engine_out_response_state
+    if self.chute_check_bool:
+      chute_check_notify = True
+      print("checking chute")
+      if self.is_reentry():
+        # If the pressure on the vehicle is okay for the chutes, go for it
+        # Note: We don't support things like drogue chutes yet. We just deploy
+        # the whole kit and kaboodle
+        print("In reentry")
+        if self.vehicle.flight().static_pressure > self.vehicle.parts.parachutes[0].deploy_min_pressure:
+          self.deploy_chutes()
+    if self.reentry_state != None:
+      if self.is_reentry():
+        print("returning %s" % self.next_state)
+        return self.reentry_state
     if self.target_speed != None:
       if self.mach_check_bool: 
         if self.target_speed == "mach1":
