@@ -119,7 +119,6 @@ class Flight:
   def command_pitch(self, pitch):
     """ Controls the pitch of the vehicle """
     self.point_to_node = None
-    #print("Target Pitch: " + str(self.vehicle.auto_pilot.target_pitch))
     if pitch == "follow_path":
       pass
     elif pitch == "prograde":
@@ -203,13 +202,11 @@ class Flight:
       - At the atmospheric transition boundry for the current sphere of influence
       - Headed in a downward trajectory
     """
-    #print("Checking to see if we are in reentry")
     if not self.reentry:
       if self.vehicle.orbit.body.has_atmosphere:
         body = self.vehicle.orbit.body
         body_atmo = body.atmosphere_depth
         our_altitude = self.vehicle.flight(body.reference_frame).surface_altitude
-        #print("Vertical speed is %.2f" % self.vehicle.flight(body.reference_frame).surface_altitude)
         if self.vehicle.flight(body.reference_frame).vertical_speed < 0:
           # going down
           if abs(body.atmosphere_depth - our_altitude) < 100:
@@ -257,10 +254,10 @@ class Flight:
 
   def deploy_chutes(self):
     """ Throw the chutes and hope for the best """
-    pass
     for chute in self.vehicle.parts.parachutes:
-      print(" *** Deploying parachute")
-      chute.deploy()
+      if not chute.deployed:
+        print(" *** Deploying parachute")
+        chute.deploy()
 
   def verify_safe_orbit(self, value):
     """ Set the bool as to whether we should check for a safe orbit """
@@ -314,44 +311,42 @@ class Flight:
           print ("  *** Engine fuel depeleted")
           self.next_state = self.engine_out_response_state
           self.engine_out_response_state = None
-          print("returning %s" % self.next_state)
+          print("returning 1 %s" % self.next_state)
           return self.next_state
     if self.check_safe_orbit_bool:
       self.safe_orbit = self.check_safe_orbit()
     if self.target_altitude != None:
       if altitude >= self.target_altitude:
         print("  *** Target altitude hit")
-        print("returning %s" % self.next_state)
+        print("returning 2 %s" % self.next_state)
         return self.next_state
     if self.target_apoapsis != None:
       if self.target_apoapsis <= self.vehicle.orbit.apoapsis_altitude:
         print("  *** Met target apoapsis")
         self.target_apoapsis = None
-        print("returning %s" % self.next_state)
+        print("returning 3 %s" % self.next_state)
         return self.next_state
     if self.target_periapsis != None:
       peri = self.vehicle.orbit.periapsis_altitude
       if (self.target_periapsis * 0.95) <= self.vehicle.orbit.periapsis_altitude <= (self.target_periapsis * 1.05):
         print("  *** Met target periapsis")
         self.target_periapsis = None
-        print("returning %s" % self.next_state)
+        print("returning 4 %s" % self.next_state)
         return self.next_state
-    if self.vehicle.resources.amount('LiquidFuel') < 0. or self.vehicle.resources.amount('Oxidizer') < 0.1:
-      print("returning %s" % self.next_state)
+    if (self.vehicle.resources.amount('LiquidFuel') < 0.1 and self.vehicle.resources.max('LiquidFuel') > 0.0) or (self.vehicle.resources.amount('Oxidizer') < 0.1 and self.vehicle.resources.max('Oxidizer') > 0.0):
+      print("returning 5 %s" % self.engine_out_response_state)
       return self.engine_out_response_state
     if self.chute_check_bool:
       chute_check_notify = True
-      print("checking chute")
-      if self.is_reentry():
+      if self.reentry:
         # If the pressure on the vehicle is okay for the chutes, go for it
         # Note: We don't support things like drogue chutes yet. We just deploy
         # the whole kit and kaboodle
-        print("In reentry")
         if self.vehicle.flight().static_pressure > self.vehicle.parts.parachutes[0].deploy_min_pressure:
           self.deploy_chutes()
     if self.reentry_state != None:
       if self.is_reentry():
-        print("returning %s" % self.next_state)
+        print("  *** Entering atmosphere. Transitioning to %s" + self.reentry_state)
         return self.reentry_state
     if self.target_speed != None:
       if self.mach_check_bool: 
