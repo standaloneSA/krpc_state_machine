@@ -65,7 +65,7 @@ enable_sas = True
 command_throttle = 80
 command_pitch = follow_path
 enable_rcs = True
-set_target_altitude = 60000
+set_target_altitude = 70000
 following_state = coast_1
 engine_out_response = booster_sep
 

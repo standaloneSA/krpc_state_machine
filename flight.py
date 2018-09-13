@@ -176,7 +176,7 @@ class Flight:
     if altitude == "None":
        self.target_altitude = None
     elif altitude == "apoapsis":
-      self.target_altitude = self.apoapsis()
+      self.target_altitude = self.apoapsis() * 0.98
     elif altitude == "":
       self.target_altitude = None
     else:

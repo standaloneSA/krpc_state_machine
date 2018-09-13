@@ -31,8 +31,6 @@ config = "kerbalx"
 
 conn = base_config.begin()
 sm = state_machine(conn, conn.space_center.active_vessel, "configs/" + config)
-#sm = state_machine(conn, conn.space_center.active_vessel, "configs/two_stage_leo")
-#sm = state_machine(conn, conn.space_center.active_vessel, "configs/single_stage_leo")
 
 # Add the callback to trigger abort from in-game
 abort = conn.add_stream(getattr, sm.vehicle.control, 'abort')
